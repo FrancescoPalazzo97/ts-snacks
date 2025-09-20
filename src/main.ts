@@ -1,95 +1,80 @@
-import { date, z } from 'zod';
+import { z } from 'zod';
 z.config(z.locales.it());
 
-// const Product = z.object({
-//   id: z.number().int(),
-//   name: z.string(),
-//   price: z.number().positive(),
-//   available: z.boolean(),
-//   category: z.array(z.string())
-// })
-
-// type Product = z.infer<typeof Product>;
-
-// const product1 = {
-//   id: 1,
-//   name: 'Mela',
-//   price: 2,
-//   available: true,
-//   category: ['fruit', 'red']
-// }
-
-// const product2 = {
-//   id: 1,
-//   name: 'banana',
-//   price: 2,
-//   available: false,
-//   category: ['fruit', 'yellow']
-// }
-
-// const product3 = {
-//   id: 1,
-//   name: 'fragola',
-//   price: 2,
-//   available: 'maybe',
-//   category: 'red'
-// }
-
-// const data = Product.parse(product1);
-// console.log(data);
-
-// const data2 = Product.parse(product2);
-// console.log(data2);
-
-// try {
-//   const data3 = Product.parse(product3);
-//   console.log(data3);
-// } catch (error) {
-//   if (error instanceof z.ZodError) {
-//     error.issues.forEach(e => {
-//       console.error(e)
-//     })
-//   }
-// }
-
-// const data3 = Product.safeParse(product3);
-// console.log(data3)
-
-const ProdottoAvanzatoSchema = z.object({
-  id: z.number().int().positive(),
-  name: z.string().min(3).max(100), // lunghezza tra 3 e 100 caratteri
-  price: z.number().positive().multipleOf(0.01), // precisione centesimi (no millesimi)
-  available: z.boolean(),
-  category: z.array(z.string()).min(1).max(5), // almeno 1, massimo 5 categorie
-  bio: z.string().optional(), // campo opzionale
-  discount: z.number().min(0).max(100).nullable(), // percentuale sconto, può essere null
-  createdAt: z.iso.datetime() // ISO datetime
+const infoEvento = z.object({
+  nome: z.string().min(5).max(100),
+  bio: z.string().max(500).optional(),
+  categoria: z.enum(['conferenza', 'workshop', 'seminario', 'networking'])
 });
 
-type ProductType = z.infer<typeof ProdottoAvanzatoSchema>;
+const infoEventoData = infoEvento.parse({
+  nome: `Fiera dell'arancino`,
+  categoria: 'networking'
+})
+console.log(infoEventoData)
 
-const p1 = {
-  id: 1,
-  name: 'Pane',
-  price: 1.50,
-  available: true,
-  category: ['Cibo', 'pane'],
-  discount: null,
-  createdAt: new Date().toISOString()
-}
+const infoEventoData2 = infoEvento.safeParse({
+  nome: `Fiera dell'arancino`,
+  bio: 32,
+  categoria: 'networking'
+})
+console.log(infoEventoData2)
 
-const data = ProdottoAvanzatoSchema.parse(p1);
-console.log(data)
 
-const p2 = {
-  id: undefined,
-  name: null,
-  price: true,
-  available: true,
-  category: 'cibo',
-  discount: 120,
-  createdAt: Date()
-}
+const dataEvento = z.object({
+  inizio: z.iso.datetime(),
+  fine: z.iso.datetime(),
+  durata: z.number().positive().multipleOf(15)
+});
 
-const data2 = ProdottoAvanzatoSchema.parse(p2);
-console.log(data2)
+const dataEventoData = dataEvento.safeParse({
+  inizio: new Date().toISOString(),
+  fine: new Date().toISOString(),
+  durata: 45
+})
+console.log('data valido', dataEventoData)
+
+const dataEventoData2 = dataEvento.safeParse({
+  inizio: 'oggi',
+  fine: '22-12-2026',
+  durata: 1
+})
+console.log('data non valido', dataEventoData2)
+
+const logisticaEvento = z.object({
+  maxPartecipanti: z.number().int().positive(),
+  prezzo: z.number().multipleOf(0.01)
+})
+
+const logisticaEventoData = logisticaEvento.safeParse({
+  maxPartecipanti: 12,
+  prezzo: 10.12
+})
+console.log('Logistica evento valido', logisticaEventoData)
+
+const logisticaEventoData2 = logisticaEvento.safeParse({
+  maxPartecipanti: '12',
+  prezzo: 10.121
+})
+console.log('Logistica evento NON valido', logisticaEventoData2)
+
+const infoContatto = z.object({
+  emailOrgaizzatore: z.email(),
+  sito: z.url(),
+  telefono: z.string().startsWith('+39')
+})
+
+const infoContattoData = infoContatto.safeParse({
+  emailOrgaizzatore: 'francesco@gmail.com',
+  sito: 'http://localhost:5173/',
+  telefono: '+39 312 236 0987'
+})
+
+const infoContattoData2 = infoContatto.safeParse({
+  emailOrgaizzatore: 'AAA@cikao.com',
+  sito: 'boh',
+  telefono: '312 236 0987'
+})
+
+console.log('Info contatto valido', infoContattoData)
+console.log('Info contatto NON valido', infoContattoData2)
