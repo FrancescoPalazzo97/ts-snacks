@@ -41,5 +41,13 @@ console.log(data);
 const data2 = Product.parse(product2);
 console.log(data2);
 
-const data3 = Product.parse(product3);
-console.log(data3);
+try {
+  const data3 = Product.parse(product3);
+  console.log(data3);
+} catch (error) {
+  if (error instanceof z.ZodError) {
+    error.issues.forEach(e => {
+      console.error(e)
+    })
+  }
+}
