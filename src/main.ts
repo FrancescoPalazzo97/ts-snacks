@@ -1,4 +1,5 @@
 import { z } from 'zod';
+z.config(z.locales.it());
 
 const Product = z.object({
   id: z.number(),
@@ -9,3 +10,36 @@ const Product = z.object({
 })
 
 type Product = z.infer<typeof Product>;
+
+const product1 = {
+  id: 1,
+  name: 'Mela',
+  price: 2,
+  available: true,
+  category: ['fruit', 'red']
+}
+
+const product2 = {
+  id: 1,
+  name: 'banana',
+  price: 2,
+  available: false,
+  category: ['fruit', 'yellow']
+}
+
+const product3 = {
+  id: 1,
+  name: 'fragola',
+  price: 2,
+  available: 'maybe',
+  category: 'red'
+}
+
+const data = Product.parse(product1);
+console.log(data);
+
+const data2 = Product.parse(product2);
+console.log(data2);
+
+const data3 = Product.parse(product3);
+console.log(data3);
